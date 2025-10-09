@@ -11,7 +11,8 @@
 
 echo "e29fe1faca2bfb548f73cac5a346064d471a83b36b95766140ba8ae48a30f8cd" > secret-file
 curl -sO http://3.94.102.44:8080/jenkins/jnlpJars/agent.jar
-java -jar agent.jar -url http://3.94.102.44:8080/jenkins/ -secret @secret-file -name "node-1"  -workDir "/mnt/node-1"
+nohup java -jar agent.jar -url http://3.94.102.44:8080/jenkins/ -secret @secret-file -name "node-1"  -workDir "/mnt/node-1" &
+#nohup to run command in backenf
 
 FROM jenkins/inbound-agent:latest
 USER root
