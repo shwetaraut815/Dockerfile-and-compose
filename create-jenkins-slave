@@ -1,0 +1,36 @@
+# create jenkins slave in docker container 
+# 1st create an node and jenkins slave remote directory
+# Manage Jenkins → Nodes → New Node
+# Node name: docker-slave
+# Permanent agent → click OK
+# Remote root directory: /home/jenkins/agent
+# Launch method: “Launch agent by connecting it to the controller”
+# Save it.
+
+#paste url and secret key in slave-dir and use it as volume for container
+
+echo e29fe1faca2bfb548f73cac5a346064d471a83b36b95766140ba8ae48a30f8cd > secret-file
+curl -sO http://3.94.102.44:8080/jenkins/jnlpJars/agent.jar
+java -jar agent.jar -url http://3.94.102.44:8080/jenkins/ -secret @secret-file -name "node-1"  -workDir "/mnt/node-1"
+
+FROM jenkins/inbound-agent:latest
+USER root
+RUN apt-get update && apt-get install -y git docker.io
+USER jenkins
+
+docker build -t my-jenkins-slave .
+docker run -d --name docker-slave my-jenkins-slave \
+  -url http://<master-ip>:8080/ \
+  -secret <secret> \
+  -name "docker-slave"
+
+#or directly 
+
+docker run -d \
+  --name docker-slave \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v /home/jenkins/agent:/home/jenkins/agent \
+  jenkins/inbound-agent \
+  -url http://<master-ip>:8080/ \
+  -secret <secret-key> \
+  -name "docker-slave"
