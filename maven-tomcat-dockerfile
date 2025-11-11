@@ -1,0 +1,14 @@
+# Multistage Dockerfile
+#step 1: build war
+FROM maven:3.9.11
+WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean package -DskipTests
+
+#step 2: deploy to tomcat
+FROM tomcat:9.0-jdk17
+WORKDIR /usr/local/tomcat/webapps
+RUN rm -rf ROOT
+COPY --from=builder /app/target/*.war ROOT.war
+EXPOSE 8080
