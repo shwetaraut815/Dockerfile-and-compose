@@ -1,0 +1,36 @@
+networks:
+  link-net:
+    driver: bridge
+
+  test-net:
+    driver: bridge
+
+services:
+   httpd:
+     image: "httpd"
+     ports: 
+       - "80:80"
+     volumes:
+       - "/home/sanja/ttt/compose:/usr/local/apache2/htdocs"
+
+   tomcat:
+     image: tomcat:9.0.110
+     ports:
+       - "8080:8080"
+     networks:
+       - "test-net"
+     volumes:
+       - "/home/sanja/ttt/wars:/usr/local/tomcat/webapps"
+
+  ##### create serive by refereing dockerfile and build image and use it for creating cont
+
+   custom-war:
+     image: myapp:1.0
+     build: .
+     ports: 
+       - "8090:8080"
+     
+
+
+
+
