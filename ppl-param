@@ -1,0 +1,38 @@
+pipeline {
+    agent {
+        label {
+            label "built-in"
+            customWorkspace "/mnt/xtv"
+        }
+    }
+    parameters {
+        choice (
+            name: "branch",
+            choices: ["q1", "q2", "q3"]
+
+        )
+    }
+    stages {
+        stage ("scm checkout") {
+            steps {
+           git branch: "${params.branch}", url: "https://github.com/shwetaraut815/new.git"
+            }
+        }
+        stage ("installation") {
+            steps {
+                sh "yum install httpd -y"
+                sh "systemctl start httpd"
+
+            }
+        }
+        stage ("deploy") {
+            
+                steps {
+                    sh "rm -rf /var/www/html/*"
+                    sh "cp index.html /var/www/html"
+                    sh "chmod -R 777 /var/www/html"
+                }
+            }
+        
+    }
+}

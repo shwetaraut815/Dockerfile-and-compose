@@ -1,0 +1,53 @@
+---
+- name: Deploy WAR on Docker container
+  hosts: linux
+  user: xyz
+  become: yes
+  connection: ssh
+
+  tasks:
+
+    - name: Install Docker
+      yum:
+        name: docker
+        state: present
+
+    - name: Start Docker
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Copy Dockerfile
+      copy:
+        src: Dockerfile
+        dest: /mnt/Dockerfile
+
+    - name: Copy WAR file
+      copy:
+        src: sample.war
+        dest: /mnt/sample.war
+
+    - name: Build Docker image
+      community.docker.docker_image:
+        name: tomcat_image
+        tag: "1.0"
+        build:
+          path: /mnt
+        source: build
+
+    - name: Run Tomcat container
+      community.docker.docker_container:
+        name: tomcat_cont
+        image: tomcat_image:1.0
+        state: started
+        published_ports:
+          - "8090:8080"
+
+## Dockerfile
+
+FROM tomcat:9.0
+COPY sample.war /usr/local/tomcat/webapps/
+EXPOSE 8080
+CMD ["catalina.sh", "run"]
+
